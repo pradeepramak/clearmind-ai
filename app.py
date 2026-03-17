@@ -2,9 +2,15 @@ from PIL import Image
 from flask import Flask, render_template, request
 import pdfplumber
 import google.generativeai as genai
+import os
 
-# 🔐 ADD YOUR REAL API KEY HERE
-genai.configure(api_key="AIzaSyDYa_6l36WKZiJg9fJhHziRZuQvLKx9peg")
+# 🔐 Load API key
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+if not API_KEY:
+    raise ValueError("❌ GEMINI_API_KEY not set in environment variables")
+
+genai.configure(api_key=API_KEY)
 
 model = genai.GenerativeModel("models/gemini-2.5-flash")
 
@@ -14,6 +20,16 @@ app = Flask(__name__)
 document_context = ""
 analysis_result = ""
 chat_history = []
+
+
+# ✅ Safe AI call (no crash)
+def safe_generate(content):
+    try:
+        response = model.generate_content(content)
+        return response.text if response and response.text else "⚠️ No response from AI."
+    except Exception as e:
+        print("ERROR:", e)  # Shows in Render logs
+        return "⚠️ AI service temporarily unavailable. Please try again."
 
 
 @app.route('/')
@@ -27,6 +43,7 @@ def upload():
     global document_context, analysis_result, chat_history
 
     document_context = ""
+    analysis_result = ""
     chat_history = []
 
     if 'file' not in request.files:
@@ -38,6 +55,7 @@ def upload():
         return "Please select a file."
 
     filename = file.filename.lower()
+    print("File received:", filename)
 
     prompt = """
 You are a document analysis assistant.
@@ -61,24 +79,30 @@ Explain everything clearly in simple English.
                 if text:
                     document_context += text
 
+        # Handle empty PDF
+        if not document_context:
+            return render_template(
+                "result.html",
+                result="No readable text found in this PDF.",
+                chat=[]
+            )
+
         full_prompt = prompt + "\n\nDocument:\n" + document_context
-        response = model.generate_content(full_prompt)
+        analysis_result = safe_generate(full_prompt)
 
     # -------- IMAGE --------
     elif filename.endswith((".png", ".jpg", ".jpeg")):
 
-        image = Image.open(file)
-
-        response = model.generate_content([prompt, image])
-
-        # Store placeholder context
-        document_context = "Image document"
+        try:
+            image = Image.open(file)
+            analysis_result = safe_generate([prompt, image])
+            document_context = "Image document"
+        except Exception as e:
+            print("Image Error:", e)
+            return "Error processing image."
 
     else:
         return "Unsupported file type."
-
-    # Save analysis
-    analysis_result = response.text
 
     return render_template(
         "result.html",
@@ -109,10 +133,8 @@ Question:
 Answer clearly using only the document.
 """
 
-    response = model.generate_content(prompt)
-    answer = response.text
+    answer = safe_generate(prompt)
 
-    # Save conversation
     chat_history.append({
         "q": question,
         "a": answer
