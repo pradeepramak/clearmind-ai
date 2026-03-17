@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ClearMind AI - Analysis Result</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f4f6f8;
+    padding:40px;
+}
+
+.container{
+    background:white;
+    width:800px;
+    margin:auto;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    overflow:hidden;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.result{
+    background:#f9fafb;
+    padding:20px;
+    border-radius:8px;
+    border-left:5px solid #4CAF50;
+    overflow-x:auto;
+}
+
+/* 🔥 FIXED TEXT OVERFLOW */
+pre{
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    max-width: 100%;
+    font-size:14px;
+}
+
+.ask-box{
+    margin-top:30px;
+    padding:20px;
+    background:#f1f3f5;
+    border-radius:8px;
+}
+
+input{
+    width:70%;
+    padding:10px;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
+
+button{
+    padding:10px 15px;
+    margin-left:10px;
+    background:#4CAF50;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#43a047;
+}
+
+.button{
+    display:inline-block;
+    margin-top:20px;
+    padding:10px 18px;
+    background:#4CAF50;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+}
+
+/* 💬 Chat bubbles */
+.chat-container{
+    margin-top:20px;
+}
+
+.user-msg{
+    text-align:right;
+    margin-top:10px;
+}
+
+.user-msg div{
+    display:inline-block;
+    background:#4CAF50;
+    color:white;
+    padding:10px 15px;
+    border-radius:15px;
+    max-width:70%;
+    word-wrap:break-word;
+}
+
+.ai-msg{
+    text-align:left;
+    margin-top:10px;
+}
+
+.ai-msg div{
+    display:inline-block;
+    background:#e0e0e0;
+    padding:10px 15px;
+    border-radius:15px;
+    max-width:70%;
+    word-wrap:break-word;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Document Analysis</h1>
+
+<!-- 📄 Analysis -->
+<div class="result">
+<pre>{{ result }}</pre>
+</div>
+
+<!-- 💬 Chat -->
+{% if chat %}
+<div class="chat-container" id="chat-section">
+
+<h3>Conversation</h3>
+
+{% for item in chat %}
+
+<div class="user-msg">
+    <div>{{ item.q }}</div>
+</div>
+
+<div class="ai-msg">
+    <div>{{ item.a }}</div>
+</div>
+
+{% endfor %}
+
+</div>
+{% endif %}
+
+<!-- ❓ Ask Question -->
+<div class="ask-box">
+
+<h3>Ask a Question About This Document</h3>
+
+<form action="/ask" method="post">
+
+<input type="text" name="question"
+placeholder="Ask something about the document..." required>
+
+<button type="submit">Ask</button>
+
+</form>
+
+</div>
+
+<center>
+<a href="/" class="button">Analyze Another Document</a>
+</center>
+
+</div>
+<script>
+window.onload = function() {
+    const chat = document.getElementById("chat-section");
+    if (chat) {
+        chat.scrollIntoView({ behavior: "smooth" });
+    }
+};
+</script>
+</body>
+</html>

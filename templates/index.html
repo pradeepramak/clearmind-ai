@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ClearMind AI</title>
+    <style>
+                   #drop-area{
+border:2px dashed #4CAF50;
+border-radius:10px;
+padding:40px;
+margin-top:20px;
+text-align:center;
+background:#fafafa;
+}
+
+#drop-area.highlight{
+background:#e8f5e9;
+}
+
+.button{
+display:inline-block;
+padding:10px 20px;
+background:#4CAF50;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+        body{
+            font-family: Arial;
+            background:#f5f5f5;
+            text-align:center;
+            padding:40px;
+        }
+
+        .container{
+            background:white;
+            width:600px;
+            margin:auto;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1{
+            color:#333;
+        }
+
+        input{
+            margin-top:20px;
+        }
+
+        button{
+            padding:10px 20px;
+            margin-top:20px;
+            background:#4CAF50;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#45a049;
+        
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ClearMind AI</h1>
+
+<p>Upload a document and understand it instantly.</p>
+
+<div id="drop-area">
+
+<form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
+
+<input type="file" id="fileElem" name="file" accept=".pdf,.png,.jpg,.jpeg,.txt,.docx" hidden>
+
+<label for="fileElem" class="button">Choose File</label>
+
+<p>or drag & drop file here</p>
+
+</form>
+
+</div>
+
+</div>
+<script>
+
+let dropArea = document.getElementById("drop-area")
+
+;["dragenter","dragover","dragleave","drop"].forEach(eventName=>{
+dropArea.addEventListener(eventName, preventDefaults,false)
+})
+
+function preventDefaults(e){
+e.preventDefault()
+e.stopPropagation()
+}
+
+;["dragenter","dragover"].forEach(eventName=>{
+dropArea.addEventListener(eventName,()=>dropArea.classList.add("highlight"),false)
+})
+
+;["dragleave","drop"].forEach(eventName=>{
+dropArea.addEventListener(eventName,()=>dropArea.classList.remove("highlight"),false)
+})
+
+dropArea.addEventListener("drop",handleDrop,false)
+
+function handleDrop(e){
+let dt=e.dataTransfer
+let files=dt.files
+
+document.getElementById("fileElem").files=files
+document.getElementById("upload-form").submit()
+}
+
+/* Fix for Choose File button */
+
+document.getElementById("fileElem").addEventListener("change",function(){
+document.getElementById("upload-form").submit()
+})
+
+</script>
+</body>
+</html>
